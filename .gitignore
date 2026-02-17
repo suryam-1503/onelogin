@@ -1,0 +1,5 @@
+.env
+env_data.py
+playwright_user_data/
+__pycache__/
+*.xlsx
