@@ -21,11 +21,11 @@ async def scrape_claims_table(page):
     )
 
     total_pages = max(page_numbers)
-    print("📄 Total pages:", total_pages)
+    print(" Total pages:", total_pages)
 
     for page_no in range(1, total_pages + 1):
 
-        print(f"➡️ Scraping page {page_no}")
+        print(f" Scraping page {page_no}")
 
         # Click page number
         await page.click(
@@ -56,10 +56,10 @@ async def scrape_claims_table(page):
             all_rows.append(row)
 
     if not all_rows:
-        print("❌ No data found")
+        print(" No data found")
         return
 
     df = pd.DataFrame(all_rows, columns=headers)
     df.to_excel("datasclaim.xlsx", index=False)
 
-    print(f"✅ Scraped {len(all_rows)} rows from {total_pages} pages")
+    print(f" Scraped {len(all_rows)} rows from {total_pages} pages")

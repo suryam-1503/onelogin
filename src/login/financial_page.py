@@ -8,5 +8,5 @@ async def click_claims_tab(page):
 
 
     await claims_link.first.click()
-    print("✅ Claims tab clicked")
+    print(" Claims tab clicked")
 

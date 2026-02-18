@@ -2,7 +2,7 @@ from playwright.async_api import async_playwright,Playwright, TimeoutError
 from src.login.practice_staff import click_continue_as_practice_staff
 from src.login.financial_page import click_claims_tab
 from src.scraping.claim_scrapper import scrape_claims_table
-from src.login.logout import logout
+#from src.login.logout import logout
 #from src.scraping.bills_scrapper import scrape_bills_widget, scrape_claims_widget
 from src.login.standalone_onelogin_auth import OneLoginAuthenticator
 from src.utils.settings import USER_DATA_DIR, base_url
@@ -39,7 +39,7 @@ async def automation_app(playwright: Playwright):
             await click_claims_tab(page)
 
             await scrape_claims_table(page)
-            await logout(page)
+            #await logout(page)
 
             # Scrape
             # await scrape_bills_widget(page)

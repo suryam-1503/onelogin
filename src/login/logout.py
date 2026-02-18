@@ -1,7 +1,7 @@
-#src/login/logout.py
+# #src/login/logout.py
 
 async def logout(page):
-    print("➡️ Logging out...")
+    print("Logging out...")
 
     await page.wait_for_selector(
         "#app-logout",
@@ -16,4 +16,4 @@ async def logout(page):
         timeout=30000
     )
 
-    print("✅ Logged out successfully")
+    print("Logged out successfully")
