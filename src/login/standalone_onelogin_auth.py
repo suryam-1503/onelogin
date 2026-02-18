@@ -577,23 +577,23 @@ class OneLoginAuthenticator:
                     self.logger.info("Clicking submit button to complete authentication...")
                     await submit_btn.click(timeout=self.timeout // 2)
                
-                try:
-                  self.logger.info("Checking for 'Continue as Practice Staff' page...")
+                # try:
+                #   self.logger.info("Checking for 'Continue as Practice Staff' page...")
 
-                  continue_btn = await self._page.wait_for_selector(
-                         "input[name='redirectToNonPatientLoginPage']",
-                            timeout=10000  # appears quickly if it exists
-                        )
+                #   continue_btn = await self._page.wait_for_selector(
+                #          "input[name='redirectToNonPatientLoginPage']",
+                #             timeout=10000  # appears quickly if it exists
+                #         )
 
-                  if continue_btn:
-                       self.logger.info("Clicking 'Continue as Practice Staff'...")
-                       await continue_btn.click()
-                       await self._page.wait_for_load_state("networkidle")
-                       self.logger.info("✅ Practice Staff redirect completed")
+                #   if continue_btn:
+                #        self.logger.info("Clicking 'Continue as Practice Staff'...")
+                #        await continue_btn.click()
+                #        await self._page.wait_for_load_state("networkidle")
+                #        self.logger.info("✅ Practice Staff redirect completed")
 
-                except PlaywrightTimeoutError:
-                         # This is NORMAL when the page is not shown
-                         self.logger.info("ℹ️ No Practice Staff redirect page shown")
+                # except PlaywrightTimeoutError:
+                #          # This is NORMAL when the page is not shown
+                #          self.logger.info("ℹ️ No Practice Staff redirect page shown")
     
                 
                 # Check for portal redirect

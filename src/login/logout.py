@@ -1,4 +1,4 @@
-# src/login/logout.py
+#src/login/logout.py
 
 async def logout(page):
     print("➡️ Logging out...")
