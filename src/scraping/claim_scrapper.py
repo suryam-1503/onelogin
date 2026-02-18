@@ -1,73 +1,65 @@
 import pandas as pd
-
+import asyncio
 
 async def scrape_claims_table(page):
-    """
-    Scrapes the Claims ng-table (already opened) and saves to Excel.
-    Removes unwanted 'View Details' rows safely.
-    """
 
-    #  Wait until table rows are loaded
-    await page.wait_for_selector(
-        "table.ng-table tbody tr",
-        timeout=30000
-    )
+    await page.wait_for_selector("table.ng-table tbody tr")
 
-    # Extra wait for Angular rendering
-    await page.wait_for_timeout(1500)
-
-    #  Extract table headers (skip checkbox column)
+    # Extract headers once
     headers = await page.eval_on_selector_all(
         "table.ng-table thead th:not(:first-child)",
         "ths => ths.map(th => th.innerText.trim()).filter(Boolean)"
     )
 
-    #  Extract table rows (skip checkbox column)
-    rows = await page.eval_on_selector_all(
-        "table.ng-table tbody tr",
-        """trs => trs.map(tr =>
-            Array.from(tr.querySelectorAll("td"))
-                .slice(1)
-                .map(td => td.innerText.trim())
-        )"""
-    )
-
-    if not rows:
-        print(" No claims data found")
-        return
-
-    #  Normalize rows and REMOVE 'View Details'
-    normalized_rows = []
+    all_rows = []
     col_count = len(headers)
 
-    for row in rows:
+    # Find total pages
+    page_numbers = await page.eval_on_selector_all(
+        "a[data-identifier^='pagination-'] span",
+        "spans => spans.map(s => parseInt(s.innerText))"
+    )
 
-        #  Skip rows containing "View Details"
-        if any("view details" in cell.lower() for cell in row):
-            continue
+    total_pages = max(page_numbers)
+    print("📄 Total pages:", total_pages)
 
-        # Ensure row length matches header length
-        if len(row) > col_count:
-            row = row[:col_count]
-        elif len(row) < col_count:
-            row = row + [""] * (col_count - len(row))
+    for page_no in range(1, total_pages + 1):
 
-        normalized_rows.append(row)
+        print(f"➡️ Scraping page {page_no}")
 
-    if not normalized_rows:
-        print(" All rows were filtered out")
+        # Click page number
+        await page.click(
+            f"a[data-identifier='pagination-{page_no}']"
+        )
+
+        # Wait for table reload
+        await page.wait_for_timeout(1500)
+
+        rows = await page.eval_on_selector_all(
+            "table.ng-table tbody tr",
+            """trs => trs.map(tr =>
+                Array.from(tr.querySelectorAll("td"))
+                    .slice(1)
+                    .map(td => td.innerText.trim())
+            )"""
+        )
+
+        for row in rows:
+            if any("view details" in cell.lower() for cell in row):
+                continue
+
+            if len(row) > col_count:
+                row = row[:col_count]
+            elif len(row) < col_count:
+                row += [""] * (col_count - len(row))
+
+            all_rows.append(row)
+
+    if not all_rows:
+        print("❌ No data found")
         return
 
-    
-    print("Headers count:", len(headers))
-    print("Columns per row:", len(normalized_rows[0]))
-    print("Total valid rows:", len(normalized_rows))
+    df = pd.DataFrame(all_rows, columns=headers)
+    df.to_excel("datasclaim.xlsx", index=False)
 
-    #  Create DataFrame
-    df = pd.DataFrame(normalized_rows, columns=headers)
-
-    #  Save to Excel
-    output_file = "datas.xlsx"
-    df.to_excel(output_file, index=False)
-
-    print(f"✅ Claims table scraped and saved to {output_file}")
+    print(f"✅ Scraped {len(all_rows)} rows from {total_pages} pages")
